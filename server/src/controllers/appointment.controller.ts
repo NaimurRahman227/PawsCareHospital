@@ -1,0 +1,128 @@
+import { Response } from "express";
+
+import { Appointment } from "../models/Appointment.js";
+import { AuthRequest } from "../middleware/auth.middleware.js";
+
+export const createAppointment = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const appointment =
+      await Appointment.create({
+        ...req.body,
+        createdBy: req.user?.userId,
+      });
+
+    res.status(201).json({
+      success: true,
+      data: appointment,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message:
+        "Failed to create appointment",
+    });
+  }
+};
+
+export const getAppointments = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  const appointments =
+    await Appointment.find()
+      .populate("pet")
+      .populate("doctor")
+      .populate(
+        "createdBy",
+        "name email"
+      );
+
+  res.status(200).json({
+    success: true,
+    data: appointments,
+  });
+};
+
+export const getAppointmentById =
+  async (
+    req: AuthRequest,
+    res: Response
+  ) => {
+    const appointment =
+      await Appointment.findById(
+        req.params.id
+      )
+        .populate("pet")
+        .populate("doctor");
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Appointment not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: appointment,
+    });
+  };
+
+export const updateAppointment =
+  async (
+    req: AuthRequest,
+    res: Response
+  ) => {
+    const appointment =
+      await Appointment.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        {
+          new: true,
+        }
+      );
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Appointment not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: appointment,
+    });
+  };
+
+export const deleteAppointment =
+  async (
+    req: AuthRequest,
+    res: Response
+  ) => {
+    const appointment =
+      await Appointment.findByIdAndDelete(
+        req.params.id
+      );
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Appointment not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message:
+        "Appointment deleted successfully",
+    });
+  };

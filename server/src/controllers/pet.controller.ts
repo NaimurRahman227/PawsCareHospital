@@ -1,0 +1,118 @@
+import { Request, Response } from "express";
+import { Pet } from "../models/Pet.js";
+import { AuthRequest } from "../middleware/auth.middleware.js";
+
+// CREATE
+export const createPet = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const pet = await Pet.create({
+      ...req.body,
+      owner: req.user?.userId,
+    });
+
+    res.status(201).json({
+      success: true,
+      data: pet,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to create pet",
+    });
+  }
+};
+
+// GET ALL PETS OF LOGGED IN USER
+export const getMyPets = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  const pets = await Pet.find({
+    owner: req.user?.userId,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: pets,
+  });
+};
+
+// GET SINGLE PET
+export const getPetById = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  const pet = await Pet.findOne({
+    _id: req.params.id,
+    owner: req.user?.userId,
+  });
+
+  if (!pet) {
+    return res.status(404).json({
+      success: false,
+      message: "Pet not found",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    data: pet,
+  });
+};
+
+// UPDATE PET
+export const updatePet = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  const pet = await Pet.findOneAndUpdate(
+    {
+      _id: req.params.id,
+      owner: req.user?.userId,
+    },
+    req.body,
+    {
+      new: true,
+    }
+  );
+
+  if (!pet) {
+    return res.status(404).json({
+      success: false,
+      message: "Pet not found",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    data: pet,
+  });
+};
+
+// DELETE PET
+export const deletePet = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  const pet = await Pet.findOneAndDelete({
+    _id: req.params.id,
+    owner: req.user?.userId,
+  });
+
+  if (!pet) {
+    return res.status(404).json({
+      success: false,
+      message: "Pet not found",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Pet deleted successfully",
+  });
+};
