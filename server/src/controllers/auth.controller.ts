@@ -10,9 +10,11 @@ export const registerUser = async (
   res: Response
 ) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({
+      email,
+    });
 
     if (existingUser) {
       return res.status(400).json({
@@ -21,17 +23,28 @@ export const registerUser = async (
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword =
+      await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
+
+      // safer option
+      role: role || "owner",
     });
 
     res.status(201).json({
       success: true,
-      message: "User registered successfully",
+      message:
+        "User registered successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error) {
     console.error(error);
@@ -50,30 +63,32 @@ export const loginUser = async (
   try {
     const { email, password } = req.body;
 
-    // Check if user exists
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      email,
+    });
 
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password",
+        message:
+          "Invalid email or password",
       });
     }
 
-    // Compare password
-    const isPasswordMatched = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const isPasswordMatched =
+      await bcrypt.compare(
+        password,
+        user.password
+      );
 
     if (!isPasswordMatched) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password",
+        message:
+          "Invalid email or password",
       });
     }
 
-    // Generate token
     const token = jwt.sign(
       {
         userId: user._id,
@@ -111,11 +126,24 @@ export const getCurrentUser = async (
   res: Response
 ) => {
   try {
+    const user = await User.findById(
+      req.user?.userId
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
     res.status(200).json({
       success: true,
-      user: req.user,
+      data: user,
     });
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       success: false,
       message: "Server Error",

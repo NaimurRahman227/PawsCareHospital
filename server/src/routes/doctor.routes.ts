@@ -8,18 +8,18 @@ import {
   deleteDoctor,
 } from "../controllers/doctor.controller.js";
 
-import { protect } from "../middleware/auth.middleware.js";
+import { protect , authorize } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-router.post("/", protect, createDoctor);
+router.post("/", protect, authorize("admin"), createDoctor);
 
 router.get("/", protect, getAllDoctors);
 
 router.get("/:id", protect, getDoctorById);
 
-router.patch("/:id", protect, updateDoctor);
+router.patch("/:id", protect, authorize("admin"), updateDoctor);
 
-router.delete("/:id", protect, deleteDoctor);
+router.delete("/:id", protect, authorize("admin"), deleteDoctor);
 
 export default router;

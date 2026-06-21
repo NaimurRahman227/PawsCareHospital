@@ -7,6 +7,7 @@ import appointmentRoutes from "./routes/appointment.routes.js";
 import prescriptionRoutes from "./routes/prescription.routes.js";
 import invoiceRoutes from "./routes/invoice.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
+import medicalRecordRoutes from "./routes/medicalRecord.routes.js";
 
 
 const app = express();
@@ -21,5 +22,6 @@ app.use("/api/appointments",appointmentRoutes);
 app.use("/api/prescriptions",prescriptionRoutes);
 app.use("/api/invoices",invoiceRoutes);
 app.use("/api/dashboard",dashboardRoutes);
+app.use("/api/medical-records",medicalRecordRoutes);
 
 export default app;

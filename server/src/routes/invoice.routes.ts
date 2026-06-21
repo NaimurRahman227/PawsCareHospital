@@ -8,13 +8,14 @@ import {
   deleteInvoice,
 } from "../controllers/invoice.controller.js";
 
-import { protect } from "../middleware/auth.middleware.js";
+import { protect , authorize } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
 router.post(
   "/",
   protect,
+  authorize("admin"),
   createInvoice
 );
 
@@ -39,6 +40,7 @@ router.patch(
 router.delete(
   "/:id",
   protect,
+  authorize("admin"),
   deleteInvoice
 );
 

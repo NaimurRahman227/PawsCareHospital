@@ -8,13 +8,14 @@ import {
   deletePrescription,
 } from "../controllers/prescription.controller.js";
 
-import { protect } from "../middleware/auth.middleware.js";
+import { protect , authorize } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
 router.post(
   "/",
   protect,
+  authorize("doctor"),
   createPrescription
 );
 
@@ -33,6 +34,7 @@ router.get(
 router.patch(
   "/:id",
   protect,
+  authorize("doctor"),
   updatePrescription
 );
 
