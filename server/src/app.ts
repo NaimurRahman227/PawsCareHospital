@@ -8,6 +8,8 @@ import prescriptionRoutes from "./routes/prescription.routes.js";
 import invoiceRoutes from "./routes/invoice.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 import medicalRecordRoutes from "./routes/medicalRecord.routes.js";
+import vaccinationRoutes from "./routes/vaccination.routes.js";
+import uploadRoutes from "./routes/upload.routes.js";
 
 
 const app = express();
@@ -18,10 +20,12 @@ app.use(express.json());
 app.use("/api/doctors", doctorRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/pets", petRoutes);
-app.use("/api/appointments",appointmentRoutes);
-app.use("/api/prescriptions",prescriptionRoutes);
-app.use("/api/invoices",invoiceRoutes);
-app.use("/api/dashboard",dashboardRoutes);
-app.use("/api/medical-records",medicalRecordRoutes);
+app.use("/api/appointments", appointmentRoutes);
+app.use("/api/prescriptions", prescriptionRoutes);
+app.use("/api/invoices", invoiceRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/medical-records", medicalRecordRoutes);
+app.use("/api/vaccinations", vaccinationRoutes);
+app.use("/api/uploads",uploadRoutes);
 
 export default app;
