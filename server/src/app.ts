@@ -10,6 +10,7 @@ import dashboardRoutes from "./routes/dashboard.routes.js";
 import medicalRecordRoutes from "./routes/medicalRecord.routes.js";
 import vaccinationRoutes from "./routes/vaccination.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
 
 
 const app = express();
@@ -27,5 +28,6 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/medical-records", medicalRecordRoutes);
 app.use("/api/vaccinations", vaccinationRoutes);
 app.use("/api/uploads",uploadRoutes);
+app.use("/api/notifications",notificationRoutes);
 
 export default app;
