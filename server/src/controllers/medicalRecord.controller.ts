@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { MedicalRecord } from "../models/medicalRecord.js";
+import { QueryFeatures } from "../utils/queryFeatures.js";
 
 export const createMedicalRecord =
   async (
@@ -33,14 +34,45 @@ export const createMedicalRecord =
     res: Response
   ) => {
     try {
+      const limit =
+        Number(
+          req.query.limit
+        ) || 10;
+
+      const page =
+        Number(
+          req.query.page
+        ) || 1;
+
+      const features =
+        new QueryFeatures(
+          MedicalRecord.find()
+            .populate("pet")
+            .populate(
+              "doctor"
+            ),
+          req.query
+        )
+          .sort()
+          .paginate();
+
       const records =
-        await MedicalRecord.find()
-          .populate("pet")
-          .populate("doctor")
-          .populate("appointment");
+        await features.query;
+
+      const total =
+        await MedicalRecord.countDocuments();
 
       res.status(200).json({
         success: true,
+        page,
+        limit,
+        total,
+        totalPages:
+          Math.ceil(
+            total / limit
+          ),
+        count:
+          records.length,
         data: records,
       });
     } catch (error) {

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Vaccination } from "../models/vaccination.js";
+import { QueryFeatures} from "../utils/queryFeatures.js";
 
 export const createVaccination =
     async (
@@ -28,34 +29,60 @@ export const createVaccination =
     };
 
 export const getVaccinations =
-    async (
-        req: Request,
-        res: Response
-    ) => {
-        try {
-            const vaccinations =
-                await Vaccination.find()
-                    .populate("pet")
-                    .populate(
-                        "administeredBy"
-                    );
+  async (
+    req: Request,
+    res: Response
+  ) => {
+    try {
+      const limit =
+        Number(
+          req.query.limit
+        ) || 10;
 
-            res.status(200).json({
-                success: true,
-                count:
-                    vaccinations.length,
-                data: vaccinations,
-            });
-        } catch (error) {
-            console.error(error);
+      const page =
+        Number(
+          req.query.page
+        ) || 1;
 
-            res.status(500).json({
-                success: false,
-                message:
-                    "Failed to fetch vaccinations",
-            });
-        }
-    };
+      const features =
+        new QueryFeatures(
+          Vaccination.find()
+            .populate("pet"),
+          req.query
+        )
+          .filter()
+          .sort()
+          .paginate();
+
+      const vaccinations =
+        await features.query;
+
+      const total =
+        await Vaccination.countDocuments();
+
+      res.status(200).json({
+        success: true,
+        page,
+        limit,
+        total,
+        totalPages:
+          Math.ceil(
+            total / limit
+          ),
+        count:
+          vaccinations.length,
+        data: vaccinations,
+      });
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        success: false,
+        message:
+          "Failed to fetch vaccinations",
+      });
+    }
+  };
 
 export const getPetVaccinations =
     async (

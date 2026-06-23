@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Notification } from "../models/notification.js";
 import { AuthRequest } from "../middleware/auth.middleware.js";
+import { QueryFeatures } from "../utils/queryFeatures.js";
 
 export const createNotification = async (
   req: Request,
@@ -31,16 +32,48 @@ export const getMyNotifications =
     res: Response
   ) => {
     try {
+      const limit =
+        Number(
+          req.query.limit
+        ) || 10;
+
+      const page =
+        Number(
+          req.query.page
+        ) || 1;
+
+      const features =
+        new QueryFeatures(
+          Notification.find({
+            recipient:
+              req.user?.userId,
+          }),
+          req.query
+        )
+          .filter()
+          .sort()
+          .paginate();
+
       const notifications =
-        await Notification.find({
-          recipient:
-            req.user?.userId,
-        }).sort({
-          createdAt: -1,
-        });
+        await features.query;
+
+      const total =
+        await Notification.countDocuments(
+          {
+            recipient:
+              req.user?.userId,
+          }
+        );
 
       res.status(200).json({
         success: true,
+        page,
+        limit,
+        total,
+        totalPages:
+          Math.ceil(
+            total / limit
+          ),
         count:
           notifications.length,
         data: notifications,
