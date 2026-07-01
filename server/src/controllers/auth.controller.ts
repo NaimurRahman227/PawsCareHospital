@@ -10,11 +10,10 @@ export const registerUser = async (
   res: Response
 ) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
-    const existingUser = await User.findOne({
-      email,
-    });
+    const existingUser =
+      await User.findOne({ email });
 
     if (existingUser) {
       return res.status(400).json({
@@ -26,25 +25,18 @@ export const registerUser = async (
     const hashedPassword =
       await bcrypt.hash(password, 10);
 
-    const user = await User.create({
+    await User.create({
       name,
       email,
       password: hashedPassword,
 
-      // safer option
-      role: role || "owner",
+      // Every public registration becomes an owner
+      role: "owner",
     });
 
     res.status(201).json({
       success: true,
-      message:
-        "User registered successfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      message: "Registration successful",
     });
   } catch (error) {
     console.error(error);

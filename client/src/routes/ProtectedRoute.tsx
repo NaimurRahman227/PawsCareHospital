@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { PATHS } from "../constants/paths";
 
 interface Props {
   children: React.ReactNode;
@@ -8,16 +9,19 @@ interface Props {
 const ProtectedRoute = ({
   children,
 }: Props) => {
-  const isAuthenticated =
-    useAuthStore(
-      (state) =>
-        state.isAuthenticated
-    );
+  const {
+    isAuthenticated,
+    isLoading,
+  } = useAuthStore();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (!isAuthenticated) {
     return (
       <Navigate
-        to="/login"
+        to={PATHS.LOGIN}
         replace
       />
     );
